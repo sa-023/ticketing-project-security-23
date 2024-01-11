@@ -1,24 +1,22 @@
 package com.company.entity;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 /*
  * 🖍️...
- * · @PrePersist: Used to mark a method in an entity class that should be executed just before the entity is persisted (saved) for the first time in the database.
- * · @PreUpdate: Used to mark a method in an entity class that should be executed just before an entity is updated in the database.
  * · @Column(nullable = false,updatable = false): It will prevent overriding (updating) the values in the database when we perform the update.
  *   Ex: To prevent an override of "insertDateTime" and "insertUserId" that becomes null, when we update the data.
  * · @Column(nullable = false): It should not be null.
+ * · @EntityListeners(BaseEntityListener.class): Specifies the callback listener classes to be used for an entity or mapped superclass.
  *
  */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @MappedSuperclass
+@EntityListeners(BaseEntityListener.class)
 public class BaseEntity {
 
     @Id
@@ -26,13 +24,13 @@ public class BaseEntity {
     private Long id;
 
     @Column(nullable = false,updatable = false)
-    private LocalDateTime insertDateTime;
+    public LocalDateTime insertDateTime;
     @Column(nullable = false,updatable = false)
-    private Long insertUserId;
+    public Long insertUserId;
     @Column(nullable = false)
-    private LocalDateTime lastUpdateDateTime;
+    public LocalDateTime lastUpdateDateTime;
     @Column(nullable = false)
-    private Long lastUpdateUserId;
+    public Long lastUpdateUserId;
     /*
      * 🖍️...
      * · The isDeleted field is for flagging data. When data will be deleted from the UI but still be available in the database.
@@ -40,25 +38,6 @@ public class BaseEntity {
      */
     private Boolean isDeleted = false;
 
-    @PrePersist
-    public void onePrePersist(){ // Initializing the fields.
-        this.insertDateTime =  LocalDateTime.now();
-        this.lastUpdateDateTime = LocalDateTime.now();
-        this.insertUserId = 1L;
-        this.lastUpdateUserId = 1L;
-        /*
-         * 🖍️...
-         * · insertDateTime, insertUserId, lastUpdateDateTime, and lastUpdateUserId will be automatically created by Spring.
-         * · When we apply security, following fields will come from the database: insertUserId, lastUpdateUserId
-         * · Whenever we save new data on the database first time, @PrePersist annotated method will be executed.
-         */
-    }
-
-    @PreUpdate // Whenever we update data on the database, @PreUpdate annotated method will be executed.
-    public void onePreUpdate(){
-        this.lastUpdateDateTime = LocalDateTime.now();
-        this.lastUpdateUserId = 1L;
-    }
 
 
 

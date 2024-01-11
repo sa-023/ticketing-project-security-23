@@ -1,5 +1,4 @@
 package com.company.controller;
-
 import com.company.dto.ProjectDTO;
 import com.company.service.ProjectService;
 import com.company.service.UserService;
@@ -7,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @Controller

@@ -1,10 +1,8 @@
 package com.company.dto;
-
 import com.company.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 import javax.validation.constraints.*;
 /*
  * 🦋 Validation

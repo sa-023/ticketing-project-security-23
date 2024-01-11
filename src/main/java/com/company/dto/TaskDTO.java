@@ -1,10 +1,8 @@
 package com.company.dto;
-
 import com.company.enums.Status;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.UUID;
