@@ -1,0 +1,40 @@
+/*
+ * 🦋 Volumes
+ * · Volumes are directories (or files) that are outside of the default Union File System and exist as normal directories and files on the host filesystem.
+ * · Images are appropriate for packaging and distributing relatively static files such as programs; volumes hold dynamic
+ *   data or specializations. This distinction makes images reusable and data simple to share.
+ *
+ * 🦋 Docker Compose
+ * · Docker compose is used to link multiple containers and deploy application from a single command.
+ * · Docker: When you want to deploy a single (network accessible) container.
+ * · Docker Compose: When you want to deploy multiple containers to a single host from within a single YAML file.
+ * · Docker swarm: When you want to deploy a cluster of docker nodes (multiple hosts) for a simple, scalable application.
+ *
+ * 🦋 docker-compose.yaml
+ * · In this file, we need to specify the version of the Compose file format, at least one service, and optionally volumes and networks:
+ *   1. version: "3.7"
+ *   2. services: Services refer to the containers’ configuration. For example, let’s take a dockerized web application consisting of a front end,
+ *      a back end, and a database. We’d likely split these components into three images, and define them as three different services in the configuration.
+ *   3. volumes: Volumes are physical areas of disk space shared between the host and a container, or even between containers.
+ *      In other words, a volume is a shared directory in the host, visible from some or all containers.
+ *   4. networks: Networks define the communication rules between containers, and between a container and the host.
+ *      Common network zones will make the containers’ services discoverable by each other, while private zones will segregate them in virtual sandboxes.
+ *
+ * 🦋 Docker Network
+ * · Docker networking is primarily used to establish communication between Docker containers and the outside world via the host machine where the Docker daemon is running.
+ * · You can run hundreds of containers on a single-node Docker host, so it’s required that the host can support networking
+ *   at this scale. VMs usually don’t run into these network limits as they typically run fewer processes per VM.
+ * · They have their own life cycle and are not bound to any other objects. You can define and manage them directly by using the docker network subcommands.
+ * ■ Docker includes three networks, and each is provided by a different driver.
+ * 1. Bridge: This is the default. Whenever you start Docker, a bridge network gets created and all newly started
+ *    containers will connect automatically to the default bridge network. You can use this whenever you want your containers
+ *    running in isolation to connect and communicate with each other. The downside with the bridge driver is that it’s not recommended for production.
+ * 2. Host: The host network is provided by the host driver, which instructs Docker not to create any special networking namespace or resources for attached containers
+ *    And it removes network isolation between the container and the host machine where Docker is running. For example,
+ *    If you run a container that binds to port 80 and uses host networking, the container’s application is available on port 80 on the host’s IP address.
+ * 3. None: The none network uses the null driver. Containers attached to the none network will not have any network connectivity outside themselves.
+ *
+ *
+ *
+ *
+ */
