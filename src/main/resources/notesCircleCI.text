@@ -1,0 +1,68 @@
+/*
+ * 🦋 CircleCi
+ * · CircleCI is a continuous integration and continuous delivery (CI/CD) platform. It is designed to help developers automate their testing, building, and deployment processes.
+ * · CircleCI integrates with a variety of tools, such as GitHub, Bitbucket, and GitLab, allowing developers to set up a
+ *   pipeline that triggers builds, tests, and deployments automatically.
+ * · CircleCI allows to test and deploy in multiple environments, like cloud services like AWS.
+ *
+ * ■ CircleCI can be used to automate the deployment of a Dockerized application to Amazon Web Services (AWS) using Elastic
+ *   Container Registry (ECR), Elastic Compute Cloud (EC2), and Relational Database Service (RDS). In real work scenario:
+ * - The application is stored in a version control system such as GitHub. When a developer pushes changes to the repository,
+ *   CircleCI automatically triggers a build and test of the applicationCircleCI is configured to run a script that uses the Docker
+ *   command-line tools to build the image and push it to ECR. The script would need to include the necessary authentication information for ECR, such as access keys.
+ * - Once the image is stored in ECR, CircleCI uses another script to start an EC2 instance, configure it with the necessary security settings,
+ *   and deploy the Docker image to it. This script would need to include the necessary authentication information for EC2, such as access keys and region.
+ * - CircleCI also uses a script to create and configure the RDS database in which the application will store its data.
+ * - After the application and the database are deployed, CircleCI runs a set of tests to ensure that everything is working as expected.
+ * - If the tests pass, CircleCI marks the build as successful and the application is ready to use. If the tests fail,
+ *   CircleCI sends an alert to the development team and the pipeline stops, avoiding to deploy a broken version of the application.
+ * - CircleCI can be configured to deploy the application to different environments, like staging, testing, and production.
+ *   This can be done by using branches or tags in the version control system, or by using environment variables in the CircleCI pipeline.
+ * - CircleCI provides a web-based interface to monitor the status of the builds and deployments, and also provides an API to programmatically integrate with other services.
+ *
+ */
+
+
+
+🦋 CircleCI Setup
+0.1. Circleci -> Project -> Set Up Project -> Fastest -> A new "circleci-project-setup" branch will be created on the remote repo, and a ".circleci" package -> "config.yml" file will be created in the root directory of the application.
+0.2. Go to Local repo and do a Git pull to get the new repository "circleci-project-setup" to local and add configurations to the ".circleci" package -> "config.yml" file.
+1. Go to Terminal (the directory should be the same folder as the ec2-key.pem file is located in).
+2. Go to AWS -> EC2 -> select EC2 instance -> click on Connect -> select SSH client ->
+   2.1. Copy third command and run it in terminal.
+   2.2. Copy the Example command and run it in the terminal. Then we should successfully be connected to a remote machine.
+3. Run the "mkdir bin" command in Terminal, and it should create a bin folder in EC2.
+4. Run the "cd bin" command in Terminal to go to the bin directory in Ec2.
+5. Run the "nano deploy_images.sh" command. It should create an .sh file, which will go inside the file.
+6. Copy and paste the below configuration in the deploy_images.sh file in Terminal, perform Control+S, and then hit ENTER.
+
+#Check for running container & stop it before starting a new one
+docker stop ticketingapp
+docker rmi ticketingapp
+docker rm ticketingapp
+aws configure set aws_access_key_id AKIAUGTRDLZE4SDTSBFD
+aws configure set aws_secret_access_key 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
+aws configure set default.region eu-west-2
+aws ecr aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 289073749562.dkr.ecr.eu-west-2.amazonaws.com
+echo "Pulling latest Image name: 289073749562.dkr.ecr.eu-west-2.amazonaws.com/ticketingapp:latest"
+docker pull 289073749577.dkr.ecr.eu-west-2.amazonaws.com/ticketingapp
+echo "Starting sing Docker Image name: 289073749562.dkr.ecr.eu-west-2.amazonaws.com/ticketingapp:latest"
+#docker run --rm -d ${DOCKER_OPTS} --name ticketingapp 289073749577.dkr.ecr.eu-west-2.amazonaws.com/ticketingapp:latest
+docker run -d -p 8080:8080 --name ticketingapp 289073749577.dkr.ecr.eu-west-2.amazonaws.com/ticketingapp
+echo "Cleaning old docker images"
+#docker rmi $(docker images -f dangling=true -q)
+if [[ $(docker images | grep ticketingapp | grep none | awk '{print $3}') ]]; then
+    docker rmi $(docker images | grep ticketingapp | grep none | awk '{print $3}')
+else
+    echo "No old images found"
+fi
+docker ps -a
+
+7. Run the "ls" command to check if the deploy_images.sh file is in the bin.
+8. Go to CircleCI, login to the EC2 machine, and add the SSH key. CircleCI -> pipeline (ticketing-project-security) -> Project Settings -> SSH key -> "Add SSH Key" -> Copy and paste ec2-key.pem into the Private Key field and click on the Add SSH Key button.
+9. Add the ECR AWS configuration: AWS -> Your Name -> Security Credentials -> Access keys (ec2-key.pem) -> Access Key ID and Secret Key ID -> Then go to Circle CI -> Pipeline (ticketing-project-security) -> Project Settings -> Environment Variables ->
+                     -> 1. Click Add Environment Variable -> Name: AWS_ACCESS_KEY_ID and Value: AKIAUGTRDDTUE4SXTSBFD then click the Add Environment Variables button.
+                     -> 2. Click Add Environment Variable -> Name: AWS_SECRET_ACCESS_KEY_ID and value: Adfaf242qfawdgerhehewfwewqe, then click the Add Environment Variables button.
+                     -> 3. Click Add Environment Variable -> Name: AWS_REGION and Value: eu-west-2
+10. Push the code to GitHub. Pipeline will start running automatically on CircleCI.
+11. To run the application, go to AWS and click on your EC2 Instance ID -> Details -> Copy "Public IPv4 DNS" past it to the browser, add 8080 to the end. (Ex: ec2-18-90-109-198.eu-west-2.compute.amazonaws.com:8080)
