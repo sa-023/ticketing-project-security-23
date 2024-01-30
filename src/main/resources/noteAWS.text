@@ -1,0 +1,82 @@
+/*
+ * 🦋 Amazon Web Services (AWS)
+ * · It is a comprehensive cloud computing platform.
+ * · AWS provides servers, storage, networking, remote computing, email, mobile development, and security.
+ * · It includes a mixture of Infrastructure as a Service (IaaS), Platform as a Service (PaaS) and packaged Software as a Service (SaaS) offerings.
+ *   AWS services can offer an organization tools such as compute power, database storage and content delivery services.
+ * 🔺 AWS Services
+ * ■ Database: RDS - Relational Database Service
+ * · Amazon RDS stores data as tables, records, and fields.
+ * · Set up, operate, and scale a relational database in the cloud with just a few clicks.
+ * · It is a collection of managed services that makes it simple to set up, operate, and scale databases in the cloud.
+ * · Amazon RDS supports an array of database engines to store and organize data. It also helps with relational database
+ *   management tasks, such as data migration, backup, recovery and patching.
+ * · Amazon RDS supports PostgreSQL, MySQL, Maria DB, Oracle, SQL Server, and Amazon Aurora.
+ * ■ Container: ECR - Elastic Container Registry
+ * · Amazon Elastic Container Registry (ECR) is a fully managed container registry that makes it easy to store, manage,
+ *   share, and deploy your container images and artifacts anywhere.
+ * ■ Compute: EC2 - Elastic Compute Cloud
+ * · EC2 is a web service where an AWS subscriber can request and provision a compute server in AWS cloud.
+ * · These virtual machines are pre-configured with the operating systems and some of the required software.
+ * · The instance will be charged per hour with different rates based on the type of the instance chosen. AWS provides
+ *   multiple instance types for the respective business needs of the user.
+ * · The instance can be rent based on your own CPU and memory requirements and use it as long as you want. You can terminate the instance when it’s no more used and save on costs.
+ *
+ * 🖌️️...
+ * · A compute platform is a data environment where software implementation occurs.
+ * · Cloud computing is the delivery of different services through the Internet.
+ */
+
+
+❗️1. RDS (Database): Create an RDS and migrate the database from local to remote cloud services.
+1. Create an RDS database engine. (Services -> Database -> RDS -> Create database)
+2. Then click on the newly created database name. (Ex: ticketingdb)
+3. To open our port in the cloud as well, click on Security -> "VPC security group" -> "Inbound rules" -> "Edit inbound rules" -> "Add rule" -> Port range: 5432 -> Save rules.
+4. After clicking on the database name, we should see the endpoint.
+5. Use RDS endpoint as a datasource.url and RDS credentials in the application.properties file.
+6. Then use that new datasource.url and credentials to connect to the database. (IntelliJ: Database -> New -> Data Source -> Postgres).
+7. Then we should be connected to the AWS RDS database. Then Run the application, and it should work. We should be able to see our tables.
+
+❗️2. ECR (Container): Create an AWS ECR registry, then create a Docker image, and then push the image to the ECR.
+1. Create an Amazon ECR repository. (Services -> Containers -> Elastic Container Registry -> Create repository)
+2. Select the newly created ECR repository. (Ex: ticketingapp)
+3. Click on the "View push commands" button, and a window will pop up. Copy the first command and run it in the root directory of the application.
+4. We should get an UnreconciledClientException. To fix the issue, first get the access key ID and secret access key on AWS. (AWS--> OurName -> Security Credentials -> Access key (access key ID and secret access key) -> Create New Access Key -> Download Key File).
+5. Run the "aws configure" command and follow the below commands:
+   5.1. AWS Access Key (copy and paste the access key ID).
+   5.2. AWS Secret Access Key (copy and paste the secret access key)
+   5.3. Default region name (add your AWS region name, e.g., us-east-1).
+   5.4 Default output format (we can choose Yaml.)
+6. Click on the "View push commands" button, and a window will pop up.
+   6.1. Copy the first command and run it in the root directory of the application. We should see Login Succeeded on the terminal. This will authenticate the Docker client for the registry.
+   6.2. Copy the second command and run it in the root directory of the application. This will build the Docker image.
+   6.3. Copy the third command and run it in the root directory of the application. This will push the image to the ECR.
+
+❗️3. EC2 (Compute): Create an EC2 instance, install Docker into EC2, get an image from ECR, and run the application on a remote EC2 machine.
+1. Create an EC2 instance. (Services -> Compute -> EC2 -> Launch Instance)
+2. Open a Mac terminal. (If we have Windows, we should use GitBash.)
+3. Go to the directory where the security credentials key pair is located on the local machine (ex., cd downloads). Our key pair is located in the downloads file.
+4. Go to AWS and select the newly created EC2 instance. (Ex: ticketingapp)
+5. Click on the "Connect" button and choose "SSH client".
+   5.1. Copy the third command and run it in the terminal.
+   5.2. Copy the Example command and run it in the terminal. Then we should be able to connect the EC2 machine.
+8. Go to the https://docs.aws.amazon.com/AmazonECS/latest/userguide/create-container-image.html page, click and expand the "Installing Docker on Amazon Linux 2" header.
+   8.1. Copy the third command and run it in the terminal. Update the installed packages and package cache on your instance.
+   8.2. Copy the fourth command and run it in the terminal. Installing the Docker Engine.
+   8.3. Copy the fifth command and run it in the terminal. Start the Docker service.
+   8.4. Copy the sixth command and run it in the terminal. To use commands without sudo.
+   8.5. Log out and log back in again to pick up the new Docker group permissions. You can accomplish this by closing your current SSH terminal window and reconnecting to your instance in a new one. Your new SSH session will have the appropriate Docker group permissions.
+   8.6. EC2 instance -> "Connect" -> "SSH client" -> Copy Example command and run it in the terminal again. (We should be in the directory where the security credentials key pair is located.).
+   8.7. Run "docker info" command in the terminal to check if our docker is installed or not.
+9. Login to Docker with Docker credentials in the terminal using "docker login" commands.
+10. Run the "aws configure" command, followed by the below commands:
+    10.1. AWS Access Key (copy and paste the access key ID).
+    10.2. AWS Secret Access Key (copy and paste the secret access key)
+    10.3. Default region name (add your AWS region name, e.g., us-east-1).
+    10.4. Default output format (we can choose Yaml.)
+11. ECR: Click on the "View push commands" button, and a window will pop up. Copy the first command and run it in the root directory of the application. We should see Login Succeeded on the terminal. This will authenticate the Docker client for the registry.
+12. ECR: Copy the Docker image from ECR and run the "docker pull imageName" command in the terminal. (The image is located in the Amazon ECR repository under URI.)
+13. To open our host machine, go to AWS and click on your EC2 instance ID, then click on Security -> Security Group -> Inbound rules -> Edit Inbound rules -> Add rule -> Port Range: 8080, Source: Anywhere -> Save rules.
+13. Run the "docker container run -p 8080:8080 imageID" command in the terminal.
+14. To run the application, go to AWS and click on your EC2 Instance ID -> Details -> Copy "Public IPv4 DNS" past it to the browser, add 8080 to the end. (Ex: ec2-18-90-109-198.eu-west-2.compute.amazonaws.com:8080)
+
